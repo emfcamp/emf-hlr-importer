@@ -1,5 +1,5 @@
 use std::fs::{File, OpenOptions};
-use std::io::{Read, Seek, SeekFrom, Write, self};
+use std::io::{Seek, SeekFrom, Write, self};
 use std::net::TcpStream;
 use std::collections::HashMap;
 use serde::Deserialize;
@@ -146,6 +146,8 @@ fn main() {
             cnt_new_hlr += 1;
         }
     }
+
+    defaults.sync_all().unwrap();
 
     println!("[+] {cnt_new_default} new defaults, {cnt_new_hlr} added to HLR");
 }

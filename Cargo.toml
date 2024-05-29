@@ -1,0 +1,9 @@
+[package]
+name = "emf-hlr-importer"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+csv = "1.3"
+rexpect = "0.5"

@@ -1,5 +1,5 @@
 use std::fs::{File, OpenOptions};
-use std::io::{Seek, SeekFrom, Write, self};
+use std::io::{Seek, SeekFrom, Write, BufReader, BufRead, self};
 use std::net::TcpStream;
 use std::collections::HashMap;
 use serde::Deserialize;
@@ -48,7 +48,21 @@ fn read_defaults(f: &mut File) -> io::Result<(HashMap<String, u64>, u64)> {
 
 fn open_csv(path: &str) -> io::Result<csv::Reader<File>> {
     let file = File::open(path)?;
-    Ok(csv::Reader::from_reader(file))
+
+    // We need to check whether this is a c3gsm-style space separated lad
+    // or a comma-separated lad.
+    let mut file_br = BufReader::new(file);
+    let mut first_line = String::new();
+    file_br.read_line(&mut first_line).unwrap();
+
+    let delimiter = if first_line.find(',').is_some() { b',' } else { b' ' };
+
+    let mut file = file_br.into_inner();
+    file.seek(SeekFrom::Start(0)).unwrap();
+
+    Ok(csv::ReaderBuilder::new()
+        .delimiter(delimiter)
+        .from_reader(file))
 }
 
 fn main() {
@@ -91,10 +105,10 @@ fn main() {
             let record: KeysRecord = match res {
                 Ok(v) => v,
                 Err(e) => {
-                    eprintln!("fatal: could not deserialize record");
-                    eprintln!("       in file {file}");
-                    eprintln!("       error: {e}");
-                    std::process::exit(2);
+                    eprintln!("warn: could not deserialize record");
+                    eprintln!("      in file {file}");
+                    eprintln!("      error: {e}");
+                    continue;
                 }
             };
 

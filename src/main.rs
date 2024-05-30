@@ -22,7 +22,8 @@ struct KeysRecord {
     #[serde(rename = "KI")]
     ki: String,
     #[serde(rename = "OPC")]
-    opc: String,
+    #[serde(default)]
+    opc: Option<String>,
 }
 
 /// Read the default MSISDN file.
@@ -156,7 +157,12 @@ fn main() {
 
             expect_result(format!("subscriber imsi {imsi} create"), "% Created subscriber");
             expect_result(format!("subscriber imsi {imsi} update msisdn {default_msisdn}"), "% Updated subscriber");
-            expect_result(format!("subscriber imsi {imsi} update aud3g milenage k {} opc {}", record.ki, record.opc), "");
+            if let Some(opc) = record.opc {
+                expect_result(format!("subscriber imsi {imsi} update aud3g milenage k {} opc {}", record.ki, opc), "");
+            }
+            else {
+                expect_result(format!("subscriber imsi {imsi} update aud2g comp128v3 ki {}", record.ki), "");
+            }
             cnt_new_hlr += 1;
         }
     }

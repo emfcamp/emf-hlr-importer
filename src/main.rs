@@ -161,7 +161,7 @@ fn main() {
                 expect_result(format!("subscriber imsi {imsi} update aud3g milenage k {} opc {}", record.ki, opc), "");
             }
             else {
-                expect_result(format!("subscriber imsi {imsi} update aud2g comp128v3 ki {}", record.ki), "");
+                expect_result(format!("subscriber imsi {imsi} update aud2g comp128v1 ki {}", record.ki), "");
             }
             cnt_new_hlr += 1;
         }
